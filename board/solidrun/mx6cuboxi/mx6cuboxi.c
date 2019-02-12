@@ -875,4 +875,29 @@ void board_init_f(ulong dummy)
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
 }
+
+#ifdef CONFIG_SPL_BOARD_MANUFACTURE
+
+void spl_board_manufacture() {
+	puts("Hummingboard spl_board_manufacture\n");
+	struct ocotp_regs *ocotp = (struct ocotp_regs *) OCOTP_BASE_ADDR;
+	struct fuse_bank3_regs *srkbank = (struct fuse_bank3_regs *) &(ocotp->bank[3]);
+	printf("srk0: %08x\n", srkbank->srk0);
+	printf("srk1: %08x\n", srkbank->srk1);
+	printf("srk2: %08x\n", srkbank->srk2);
+	printf("srk3: %08x\n", srkbank->srk3);
+	printf("srk4: %08x\n", srkbank->srk4);
+	printf("srk5: %08x\n", srkbank->srk5);
+	printf("srk6: %08x\n", srkbank->srk6);
+	printf("srk7: %08x\n", srkbank->srk7);
+
+	char c = serial_getc();
+	puts("Character recieved\n");
+	udelay(1000000);
+	printf("Character was %c\n", c);
+
+}
+
+#endif
+
 #endif

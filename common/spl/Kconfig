@@ -43,6 +43,13 @@ config SPL_BOARD_INIT
 	  spl_board_init() from board_init_r(). This function should be
 	  provided by the board.
 
+config SPL_BOARD_MANUFACTURE
+	bool "Call board-specific manufacturing provisioning in SPL"
+	help
+	  If this option is enabled, U-Boot will call the function
+	  spl_board_manufacture() from board_init_r(). This function should be
+	  provided by the board.
+
 config SPL_ENABLE_CACHES
 	bool "Enable caches in SPL"
 	help

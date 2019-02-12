@@ -976,6 +976,28 @@ struct fuse_bank3_regs {
 	u32 rsvd3[3];
 };
 
+struct fuse_bank6_regs {
+	u32	srk0;
+	u32	rsvd0[3];
+	u32	srk1;
+	u32	rsvd1[3];
+	u32	srk2;
+	u32	rsvd2[3];
+	u32	srk3;
+	u32	rsvd3[3];
+};
+
+struct fuse_bank7_regs {
+	u32	srk4;
+	u32	rsvd0[3];
+	u32	srk5;
+	u32	rsvd1[3];
+	u32	srk6;
+	u32	rsvd2[3];
+	u32	srk7;
+	u32	rsvd3[3];
+};
+
 struct fuse_bank8_regs {
 	u32 sjc_resp_low;
 	u32 rsvd0[3];
