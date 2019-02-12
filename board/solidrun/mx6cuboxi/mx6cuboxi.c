@@ -878,18 +878,45 @@ void board_init_f(ulong dummy)
 
 #ifdef CONFIG_SPL_BOARD_MANUFACTURE
 
+struct srkfdt {
+	uint32_t srk0;
+	uint32_t srk1;
+	uint32_t srk2;
+	uint32_t srk3;
+	uint32_t srk4;
+	uint32_t srk5;
+	uint32_t srk6;
+	uint32_t srk7;
+};
+
 void spl_board_manufacture() {
 	puts("Hummingboard spl_board_manufacture\n");
 	struct ocotp_regs *ocotp = (struct ocotp_regs *) OCOTP_BASE_ADDR;
 	struct fuse_bank3_regs *srkbank = (struct fuse_bank3_regs *) &(ocotp->bank[3]);
-	printf("srk0: %08x\n", srkbank->srk0);
-	printf("srk1: %08x\n", srkbank->srk1);
-	printf("srk2: %08x\n", srkbank->srk2);
-	printf("srk3: %08x\n", srkbank->srk3);
-	printf("srk4: %08x\n", srkbank->srk4);
-	printf("srk5: %08x\n", srkbank->srk5);
-	printf("srk6: %08x\n", srkbank->srk6);
-	printf("srk7: %08x\n", srkbank->srk7);
+	printf("Fused srk0: %08x\n", srkbank->srk0);
+	printf("Fused srk1: %08x\n", srkbank->srk1);
+	printf("Fused srk2: %08x\n", srkbank->srk2);
+	printf("Fused srk3: %08x\n", srkbank->srk3);
+	printf("Fused srk4: %08x\n", srkbank->srk4);
+	printf("Fused srk5: %08x\n", srkbank->srk5);
+	printf("Fused srk6: %08x\n", srkbank->srk6);
+	printf("Fused srk7: %08x\n", srkbank->srk7);
+
+	const void* myfdt = (void*) gd_fdt_blob();
+	int srkhnode = fdt_subnode_offset(myfdt, 0, "srkh");
+
+	printf("signode: 0x%x\n", srkhnode);
+
+	struct srkfdt *srkh = fdt_getprop(myfdt, srkhnode, "srkh-fuse", NULL);
+	// FDT structure stores integers as Big-Endian
+	printf("FDT srk0: %08x\n", be32_to_cpu(srkh->srk0));
+	printf("FDT srk1: %08x\n", be32_to_cpu(srkh->srk1));
+	printf("FDT srk2: %08x\n", be32_to_cpu(srkh->srk2));
+	printf("FDT srk3: %08x\n", be32_to_cpu(srkh->srk3));
+	printf("FDT srk4: %08x\n", be32_to_cpu(srkh->srk4));
+	printf("FDT srk5: %08x\n", be32_to_cpu(srkh->srk5));
+	printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
+	printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
 
 	char c = serial_getc();
 	puts("Character recieved\n");
