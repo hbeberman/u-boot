@@ -918,10 +918,20 @@ void spl_board_manufacture() {
 	printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
 	printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
 
-	char c = serial_getc();
-	puts("Character recieved\n");
-	udelay(1000000);
-	printf("Character was %c\n", c);
+	puts("MFG:reqmac\n");
+	char c = '\0';
+	char input[100];
+	int i = 0;
+	while(c != '\n') {
+		c = serial_getc();
+		input[i++] = c;
+	}
+	puts("\n");
+	input[i] = '\0';
+	printf("String was: %s", input);
+	printf("Value is %x\n", simple_strtoul(input, NULL, 16));
+
+	udelay(5000000);
 
 }
 
