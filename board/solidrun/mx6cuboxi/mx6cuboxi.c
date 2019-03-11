@@ -23,6 +23,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
+#include <asm/mach-imx/hab.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <malloc.h>
@@ -890,6 +891,16 @@ struct srkfdt {
 };
 
 void spl_board_manufacture() {
+	hab_rvt_report_status_t *hab_rvt_report_status;
+	hab_rvt_report_status = (hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS;
+	enum hab_status status = 0;
+	enum hab_config config = 0;
+	enum hab_state state = 0;
+	status = hab_rvt_report_status(&config, &state);
+
+	printf("\nHAB Configuration: 0x%02x, HAB State: 0x%02x, HAB Status: 0x%02x\n",
+		config, state, status);
+
 	puts("Hummingboard spl_board_manufacture\n");
 	struct ocotp_regs *ocotp = (struct ocotp_regs *) OCOTP_BASE_ADDR;
 	struct fuse_bank3_regs *srkbank = (struct fuse_bank3_regs *) &(ocotp->bank[3]);
