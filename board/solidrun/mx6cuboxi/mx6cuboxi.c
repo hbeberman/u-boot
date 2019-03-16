@@ -35,6 +35,7 @@
 #include <spl.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
+#include <fuse.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -891,6 +892,11 @@ struct srkfdt {
 };
 
 void spl_board_manufacture() {
+	u32 val, i;
+	u32 mac0, mac1;
+	char c;
+	char input[100];
+
 	hab_rvt_report_status_t *hab_rvt_report_status;
 	hab_rvt_report_status = (hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS;
 	enum hab_status status = 0;
@@ -913,12 +919,34 @@ void spl_board_manufacture() {
 	printf("Fused srk6: %08x\n", srkbank->srk6);
 	printf("Fused srk7: %08x\n", srkbank->srk7);
 
+	fuse_sense(3, 0, &val);
+	printf("fuse_sense srk0: %08x\n", val);
+	fuse_sense(3, 1, &val);
+	printf("fuse_sense srk1: %08x\n", val);
+	fuse_sense(3, 2, &val);
+	printf("fuse_sense srk2: %08x\n", val);
+	fuse_sense(3, 3, &val);
+	printf("fuse_sense srk3: %08x\n", val);
+	fuse_sense(3, 4, &val);
+	printf("fuse_sense srk4: %08x\n", val);
+	fuse_sense(3, 5, &val);
+	printf("fuse_sense srk5: %08x\n", val);
+	fuse_sense(3, 6, &val);
+	printf("fuse_sense srk6: %08x\n", val);
+	fuse_sense(3, 7, &val);
+	printf("fuse_sense srk7: %08x\n", val);
+
 	const void* myfdt = (void*) gd_fdt_blob();
 	int srkhnode = fdt_subnode_offset(myfdt, 0, "srkh");
 
 	printf("signode: 0x%x\n", srkhnode);
 
 	struct srkfdt *srkh = fdt_getprop(myfdt, srkhnode, "srkh-fuse", NULL);
+
+	if (srkh == NULL) {
+		printf("srkh-fuse node not found in fdt, unable to fuse for HAB\n");
+		return;
+	}
 	// FDT structure stores integers as Big-Endian
 	printf("FDT srk0: %08x\n", be32_to_cpu(srkh->srk0));
 	printf("FDT srk1: %08x\n", be32_to_cpu(srkh->srk1));
@@ -929,21 +957,59 @@ void spl_board_manufacture() {
 	printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
 	printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
 
+#ifdef CONFIG_MANUFACTURE_FUSES
+	puts("Provisioning SRKH fuses\n");
+	fuse_prog(3, 0, be32_to_cpu(srkh->srk0));
+	fuse_prog(3, 1, be32_to_cpu(srkh->srk1));
+	fuse_prog(3, 2, be32_to_cpu(srkh->srk2));
+	fuse_prog(3, 3, be32_to_cpu(srkh->srk3));
+	fuse_prog(3, 4, be32_to_cpu(srkh->srk4));
+	fuse_prog(3, 5, be32_to_cpu(srkh->srk5));
+	fuse_prog(3, 6, be32_to_cpu(srkh->srk6));
+	fuse_prog(3, 7, be32_to_cpu(srkh->srk7));
+#else
+	puts("Would provision SRKH fuses here if CONFIG_MANUFACTURE_FUSES\n");
+#endif
+
+	fuse_sense(4, 2, &val);
+	printf("fuse_sense MAC0: %08x\n", val);
+	fuse_sense(4, 3, &val);
+	printf("fuse_sense MAC1: %08x\n", val);
+
 	puts("MFG:reqmac\n");
-	char c = '\0';
-	char input[100];
-	int i = 0;
-	while(c != '\n') {
+	c = '\0';
+	for(i = 0; c != '\n' && i < 100; i++) {
 		c = serial_getc();
-		input[i++] = c;
+		input[i] = c;
 	}
 	puts("\n");
 	input[i] = '\0';
-	printf("String was: %s", input);
-	printf("Value is %x\n", simple_strtoul(input, NULL, 16));
+	mac0 = simple_strtoul(input, NULL, 16);
+	printf("MAC0 will be 0x%08x\n", mac0);
+
+	c = '\0';
+	for(i = 0; c != '\n' && i < 100; i++) {
+		c = serial_getc();
+		input[i] = c;
+	}
+	input[i] = '\0';
+	mac1 = simple_strtoul(input, NULL, 16);
+	printf("MAC1 will be 0x%08x\n", mac1);
+
+#ifdef CONFIG_MANUFACTURE_FUSES
+	puts("Provisioning MAC fuses\n");
+	fuse_prog(4, 2, mac0);
+	fuse_prog(4, 3, mac1);
+#else
+	puts("Would provision MAC fuses here if CONFIG_MANUFACTURE_FUSES\n");
+#endif
+
+	fuse_sense(4, 6, &val);
+	printf("fuse_sense GP1: %08x\n", val);
+	fuse_sense(4, 7, &val);
+	printf("fuse_sense GP2: %08x\n", val);
 
 	udelay(5000000);
-
 }
 
 #endif
