@@ -907,69 +907,45 @@ void spl_board_manufacture() {
 	printf("\nHAB Configuration: 0x%02x, HAB State: 0x%02x, HAB Status: 0x%02x\n",
 		config, state, status);
 
-	puts("Hummingboard spl_board_manufacture\n");
-	struct ocotp_regs *ocotp = (struct ocotp_regs *) OCOTP_BASE_ADDR;
-	struct fuse_bank3_regs *srkbank = (struct fuse_bank3_regs *) &(ocotp->bank[3]);
-	printf("Fused srk0: %08x\n", srkbank->srk0);
-	printf("Fused srk1: %08x\n", srkbank->srk1);
-	printf("Fused srk2: %08x\n", srkbank->srk2);
-	printf("Fused srk3: %08x\n", srkbank->srk3);
-	printf("Fused srk4: %08x\n", srkbank->srk4);
-	printf("Fused srk5: %08x\n", srkbank->srk5);
-	printf("Fused srk6: %08x\n", srkbank->srk6);
-	printf("Fused srk7: %08x\n", srkbank->srk7);
-
-	fuse_sense(3, 0, &val);
-	printf("fuse_sense srk0: %08x\n", val);
-	fuse_sense(3, 1, &val);
-	printf("fuse_sense srk1: %08x\n", val);
-	fuse_sense(3, 2, &val);
-	printf("fuse_sense srk2: %08x\n", val);
-	fuse_sense(3, 3, &val);
-	printf("fuse_sense srk3: %08x\n", val);
-	fuse_sense(3, 4, &val);
-	printf("fuse_sense srk4: %08x\n", val);
-	fuse_sense(3, 5, &val);
-	printf("fuse_sense srk5: %08x\n", val);
-	fuse_sense(3, 6, &val);
-	printf("fuse_sense srk6: %08x\n", val);
-	fuse_sense(3, 7, &val);
-	printf("fuse_sense srk7: %08x\n", val);
+	// System has secure booted, no need to run the manufacture flow
+	if (state == HAB_STATE_TRUSTED || state == HAB_STATE_SECURE) {
+		return;
+	}
 
 	const void* myfdt = (void*) gd_fdt_blob();
 	int srkhnode = fdt_subnode_offset(myfdt, 0, "srkh");
-
-	printf("signode: 0x%x\n", srkhnode);
-
 	struct srkfdt *srkh = fdt_getprop(myfdt, srkhnode, "srkh-fuse", NULL);
 
 	if (srkh == NULL) {
-		printf("srkh-fuse node not found in fdt, unable to fuse for HAB\n");
-		return;
-	}
-	// FDT structure stores integers as Big-Endian
-	printf("FDT srk0: %08x\n", be32_to_cpu(srkh->srk0));
-	printf("FDT srk1: %08x\n", be32_to_cpu(srkh->srk1));
-	printf("FDT srk2: %08x\n", be32_to_cpu(srkh->srk2));
-	printf("FDT srk3: %08x\n", be32_to_cpu(srkh->srk3));
-	printf("FDT srk4: %08x\n", be32_to_cpu(srkh->srk4));
-	printf("FDT srk5: %08x\n", be32_to_cpu(srkh->srk5));
-	printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
-	printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
+		printf("srkh-fuse node not found in fdt, unable to fuse  HAB\n");
+	} else {
+		// FDT structure stores integers as Big-Endian
+		printf("FDT srk0: %08x\n", be32_to_cpu(srkh->srk0));
+		printf("FDT srk1: %08x\n", be32_to_cpu(srkh->srk1));
+		printf("FDT srk2: %08x\n", be32_to_cpu(srkh->srk2));
+		printf("FDT srk3: %08x\n", be32_to_cpu(srkh->srk3));
+		printf("FDT srk4: %08x\n", be32_to_cpu(srkh->srk4));
+		printf("FDT srk5: %08x\n", be32_to_cpu(srkh->srk5));
+		printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
+		printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
 
 #ifdef CONFIG_MANUFACTURE_FUSES
-	puts("Provisioning SRKH fuses\n");
-	fuse_prog(3, 0, be32_to_cpu(srkh->srk0));
-	fuse_prog(3, 1, be32_to_cpu(srkh->srk1));
-	fuse_prog(3, 2, be32_to_cpu(srkh->srk2));
-	fuse_prog(3, 3, be32_to_cpu(srkh->srk3));
-	fuse_prog(3, 4, be32_to_cpu(srkh->srk4));
-	fuse_prog(3, 5, be32_to_cpu(srkh->srk5));
-	fuse_prog(3, 6, be32_to_cpu(srkh->srk6));
-	fuse_prog(3, 7, be32_to_cpu(srkh->srk7));
+		puts("Provisioning SRKH fuses\n");
+		fuse_prog(3, 0, be32_to_cpu(srkh->srk0));
+		fuse_prog(3, 1, be32_to_cpu(srkh->srk1));
+		fuse_prog(3, 2, be32_to_cpu(srkh->srk2));
+		fuse_prog(3, 3, be32_to_cpu(srkh->srk3));
+		fuse_prog(3, 4, be32_to_cpu(srkh->srk4));
+		fuse_prog(3, 5, be32_to_cpu(srkh->srk5));
+		fuse_prog(3, 6, be32_to_cpu(srkh->srk6));
+		fuse_prog(3, 7, be32_to_cpu(srkh->srk7));
+
+		//Set SoC to Closed security state to enforce HAB
+		fuse_prog(0, 6, 0x2);
 #else
-	puts("Would provision SRKH fuses here if CONFIG_MANUFACTURE_FUSES\n");
+		puts("Set CONFIG_MANUFACTURE_FUSES to fuse SRKH\n");
 #endif
+	}
 
 	fuse_sense(4, 2, &val);
 	printf("fuse_sense MAC0: %08x\n", val);
@@ -1001,15 +977,10 @@ void spl_board_manufacture() {
 	fuse_prog(4, 2, mac0);
 	fuse_prog(4, 3, mac1);
 #else
-	puts("Would provision MAC fuses here if CONFIG_MANUFACTURE_FUSES\n");
+	puts("Set CONFIG_MANUFACTURE_FUSES to fuse MAC address\n");
 #endif
-
-	fuse_sense(4, 6, &val);
-	printf("fuse_sense GP1: %08x\n", val);
-	fuse_sense(4, 7, &val);
-	printf("fuse_sense GP2: %08x\n", val);
-
-	udelay(5000000);
+	puts("Device in manufacturing mode and not High Assurance Booted. Resetting now!\n");
+	do_reset(NULL, 0, 0, NULL);
 }
 
 #endif
