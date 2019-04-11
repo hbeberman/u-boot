@@ -506,7 +506,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 
 #if CONFIG_IS_ENABLED(BOARD_MANUFACTURE)
-	spl_board_manufacture();
+	spl_board_provision();
 #endif
 
 #ifdef CONFIG_CYRES

@@ -878,7 +878,7 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
-#ifdef CONFIG_SPL_BOARD_MANUFACTURE
+#ifdef CONFIG_SPL_BOARD_PROVISION
 
 struct srkfdt {
 	uint32_t srk0;
@@ -891,7 +891,7 @@ struct srkfdt {
 	uint32_t srk7;
 };
 
-void spl_board_manufacture() {
+void spl_board_provision() {
 	u32 val, i;
 	u32 mac0, mac1;
 	char c;
@@ -907,7 +907,7 @@ void spl_board_manufacture() {
 	printf("\nHAB Configuration: 0x%02x, HAB State: 0x%02x, HAB Status: 0x%02x\n",
 		config, state, status);
 
-	// System has secure booted, no need to run the manufacture flow
+	// System has secure booted, no need to run the provisioning flow
 	if (state == HAB_STATE_TRUSTED || state == HAB_STATE_SECURE) {
 		return;
 	}
@@ -917,7 +917,7 @@ void spl_board_manufacture() {
 	struct srkfdt *srkh = fdt_getprop(myfdt, srkhnode, "srkh-fuse", NULL);
 
 	if (srkh == NULL) {
-		printf("srkh-fuse node not found in fdt, unable to fuse  HAB\n");
+		printf("srkh-fuse node not found in fdt, unable to fuse HAB\n");
 	} else {
 		// FDT structure stores integers as Big-Endian
 		printf("FDT srk0: %08x\n", be32_to_cpu(srkh->srk0));
@@ -929,7 +929,7 @@ void spl_board_manufacture() {
 		printf("FDT srk6: %08x\n", be32_to_cpu(srkh->srk6));
 		printf("FDT srk7: %08x\n", be32_to_cpu(srkh->srk7));
 
-#ifdef CONFIG_MANUFACTURE_FUSES
+#ifdef SPL_BOARD_PROVISION_FUSES
 		puts("Provisioning SRKH fuses\n");
 		fuse_prog(3, 0, be32_to_cpu(srkh->srk0));
 		fuse_prog(3, 1, be32_to_cpu(srkh->srk1));
@@ -943,7 +943,7 @@ void spl_board_manufacture() {
 		//Set SoC to Closed security state to enforce HAB
 		fuse_prog(0, 6, 0x2);
 #else
-		puts("Set CONFIG_MANUFACTURE_FUSES to fuse SRKH\n");
+		puts("Set SPL_BOARD_PROVISION_FUSES to fuse SRKH\n");
 #endif
 	}
 
@@ -972,14 +972,14 @@ void spl_board_manufacture() {
 	mac1 = simple_strtoul(input, NULL, 16);
 	printf("MAC1 will be 0x%08x\n", mac1);
 
-#ifdef CONFIG_MANUFACTURE_FUSES
+#ifdef SPL_BOARD_PROVISION_FUSES
 	puts("Provisioning MAC fuses\n");
 	fuse_prog(4, 2, mac0);
 	fuse_prog(4, 3, mac1);
 #else
-	puts("Set CONFIG_MANUFACTURE_FUSES to fuse MAC address\n");
+	puts("Set SPL_BOARD_PROVISION_FUSES to fuse MAC address\n");
 #endif
-	puts("Device in manufacturing mode and not High Assurance Booted. Resetting now!\n");
+	puts("Device in provisioning mode and not High Assurance Booted. Resetting now!\n");
 	do_reset(NULL, 0, 0, NULL);
 }
 
