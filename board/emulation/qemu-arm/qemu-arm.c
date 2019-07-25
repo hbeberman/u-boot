@@ -8,6 +8,7 @@
 #include <fdtdec.h>
 #include <virtio_types.h>
 #include <virtio.h>
+#include <spl.h>
 
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
@@ -91,3 +92,10 @@ void *board_fdt_blob_setup(void)
 	/* QEMU loads a generated DTB for us at the start of RAM. */
 	return (void *)CONFIG_SYS_SDRAM_BASE;
 }
+
+#ifdef CONFIG_SPL_BUILD
+u32 spl_boot_device(void)
+{
+	return 0;
+}
+#endif
