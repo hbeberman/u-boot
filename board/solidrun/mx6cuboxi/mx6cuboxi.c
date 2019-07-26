@@ -206,7 +206,9 @@ int board_mmc_getcd(struct mmc *mmc)
 		ret = !gpio_get_value(USDHC2_CD_GPIO);
 		break;
 	case USDHC3_BASE_ADDR:
+		printf("board_mmc_getcd pre mmc_get_op_cond\n");
 		ret = (mmc_get_op_cond(mmc) < 0) ? 0 : 1; /* eMMC/uSDHC3 has no CD GPIO */
+		printf("board_mmc_getcd pre mmc_get_op_cond\n");
 		break;
 	}
 
@@ -264,6 +266,7 @@ static int mmc_init_spl(bd_t *bis)
 
 int board_mmc_init(bd_t *bis)
 {
+	printf("board_mmc_init enter\n");
 	if (IS_ENABLED(CONFIG_SPL_BUILD))
 		return mmc_init_spl(bis);
 
@@ -551,10 +554,16 @@ static bool is_rev_15_som(void)
 static bool has_emmc(void)
 {
 	struct mmc *mmc;
+	bool ret;
+	printf("pre find_mmc_device\n");
 	mmc = find_mmc_device(1);
+	printf("post find_mmc_device\n");
 	if (!mmc)
 		return 0;
-	return (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
+	printf("has_emmc pre mmc_get_op_cond\n");
+	ret = (mmc_get_op_cond(mmc) < 0) ? 0 : 1;
+	printf("has_emmc post mmc_get_op_cond\n");
+	return ret;
 }
 
 int checkboard(void)

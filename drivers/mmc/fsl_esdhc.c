@@ -406,11 +406,16 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 	/* Wait for the bus to be idle */
 	while ((esdhc_read32(&regs->prsstat) & PRSSTAT_CICHB) ||
-			(esdhc_read32(&regs->prsstat) & PRSSTAT_CIDHB))
-		;
+			(esdhc_read32(&regs->prsstat) & PRSSTAT_CIDHB)) {
+		printf("esdhc_send_cmd_common wait for bus idle\n");
+	}
 
-	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
-		;
+
+	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA) {
+		printf("esdhc_send_cmd_common wait for bus idle 2\n");
+	};
+
+	printf("esdhc_send_cmd_common both waits passed\n");
 
 	/* Wait at least 8 SD clock cycles before the next command */
 	/*
@@ -451,8 +456,10 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		flags = IRQSTAT_BRR;
 
 	/* Wait for the command to complete */
-	while (!(esdhc_read32(&regs->irqstat) & flags))
-		;
+	while (!(esdhc_read32(&regs->irqstat) & flags)) {
+		printf("esdhc_send_cmd_common wait for command complete\n");
+	}
+
 
 	irqstat = esdhc_read32(&regs->irqstat);
 
@@ -520,6 +527,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		}
 
 		do {
+			printf("esdhc_send_cmd_common irqstat poll\n");
 			irqstat = esdhc_read32(&regs->irqstat);
 
 			if (irqstat & IRQSTAT_DTOE) {
@@ -548,15 +556,17 @@ out:
 	if (err) {
 		esdhc_write32(&regs->sysctl, esdhc_read32(&regs->sysctl) |
 			      SYSCTL_RSTC);
-		while (esdhc_read32(&regs->sysctl) & SYSCTL_RSTC)
-			;
+		while (esdhc_read32(&regs->sysctl) & SYSCTL_RSTC) {
+			printf("esdhc_send_cmd_common irqstat poll\n");
+		}
 
 		if (data) {
 			esdhc_write32(&regs->sysctl,
 				      esdhc_read32(&regs->sysctl) |
 				      SYSCTL_RSTD);
-			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD))
-				;
+			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD)) {
+				printf("esdhc_send_cmd_common irqstat poll\n");
+			}
 		}
 
 		/* If this was CMD11, then notify that power cycle is needed */

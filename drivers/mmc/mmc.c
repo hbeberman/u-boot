@@ -2500,9 +2500,13 @@ int mmc_get_op_cond(struct mmc *mmc)
 		return 0;
 
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	printf("pre mmc_adapter_card_type_ident\n");
 	mmc_adapter_card_type_ident();
+	printf("post mmc_adapter_card_type_ident\n");
 #endif
+	printf("pre mmc_power_init\n");
 	err = mmc_power_init(mmc);
+	printf("post mmc_power_init\n");
 	if (err)
 		return err;
 
@@ -2510,8 +2514,9 @@ int mmc_get_op_cond(struct mmc *mmc)
 	mmc->quirks = MMC_QUIRK_RETRY_SET_BLOCKLEN |
 		      MMC_QUIRK_RETRY_SEND_CID;
 #endif
-
+	printf("pre mmc_power_cycle\n");
 	err = mmc_power_cycle(mmc);
+	printf("post mmc_power_cycle\n");
 	if (err) {
 		/*
 		 * if power cycling is not supported, we should not try
@@ -2521,7 +2526,9 @@ int mmc_get_op_cond(struct mmc *mmc)
 		pr_debug("Unable to do a full power cycle. Disabling the UHS modes for safety\n");
 		uhs_en = false;
 		mmc->host_caps &= ~UHS_CAPS;
+		printf("pre mmc_power_on\n");
 		err = mmc_power_on(mmc);
+		printf("post mmc_power_on\n");
 	}
 	if (err)
 		return err;
@@ -2530,18 +2537,26 @@ int mmc_get_op_cond(struct mmc *mmc)
 	/* The device has already been probed ready for use */
 #else
 	/* made sure it's not NULL earlier */
+	printf("pre init(mmc)\n");
 	err = mmc->cfg->ops->init(mmc);
+	printf("post init(mmc)\n");
 	if (err)
 		return err;
 #endif
 	mmc->ddr_mode = 0;
 
 retry:
+	printf("pre mmc_set_initial_state\n");
 	mmc_set_initial_state(mmc);
+	printf("post mmc_set_initial_state\n");
+	printf("pre mmc_send_init_stream\n");
 	mmc_send_init_stream(mmc);
+	printf("post mmc_send_init_stream\n");
 
 	/* Reset the Card */
+	printf("pre mmc_go_idle\n");
 	err = mmc_go_idle(mmc);
+	printf("post mmc_send_init_stream\n");
 
 	if (err)
 		return err;
@@ -2550,19 +2565,27 @@ retry:
 	mmc_get_blk_desc(mmc)->hwpart = 0;
 
 	/* Test for SD version 2 */
+	printf("pre mmc_send_if_cond\n");
 	err = mmc_send_if_cond(mmc);
+	printf("post mmc_send_if_cond\n");
 
 	/* Now try to get the SD card's operating condition */
+	printf("pre sd_send_op_cond\n");
 	err = sd_send_op_cond(mmc, uhs_en);
+	printf("post sd_send_op_cond\n");
 	if (err && uhs_en) {
 		uhs_en = false;
+		printf("pre mmc_power_cycle\n");
 		mmc_power_cycle(mmc);
+		printf("post mmc_power_cycle\n");
 		goto retry;
 	}
 
 	/* If the command timed out, we check for an MMC card */
 	if (err == -ETIMEDOUT) {
+		printf("pre mmc_send_op_cond\n");
 		err = mmc_send_op_cond(mmc);
+		printf("post mmc_send_op_cond\n");
 
 		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
@@ -2604,7 +2627,9 @@ int mmc_start_init(struct mmc *mmc)
 		return -ENOMEDIUM;
 	}
 
+	printf("mmc_start_init pre mmc_get_op_cond\n");
 	err = mmc_get_op_cond(mmc);
+	printf("mmc_start_init post mmc_get_op_cond\n");
 
 	if (!err)
 		mmc->init_in_progress = 1;
