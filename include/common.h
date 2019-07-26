@@ -7,6 +7,12 @@
 #ifndef __COMMON_H_
 #define __COMMON_H_	1
 
+#ifndef DEBUG
+#ifndef CONFIG_SPL_BUILD
+#define DEBUG
+#endif
+#endif
+
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
 typedef unsigned char		uchar;

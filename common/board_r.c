@@ -649,6 +649,137 @@ static int run_main_loop(void)
 	return 0;
 }
 
+static int checkpoint_a(void)
+{
+	puts("Checkpoint A\n");
+	return 0;
+}
+static int checkpoint_b(void)
+{
+	puts("Checkpoint B\n");
+	return 0;
+}
+static int checkpoint_c(void)
+{
+	puts("Checkpoint C\n");
+	return 0;
+}
+static int checkpoint_d(void)
+{
+	puts("Checkpoint D\n");
+	return 0;
+}
+static int checkpoint_e(void)
+{
+	puts("Checkpoint E\n");
+	return 0;
+}
+static int checkpoint_f(void)
+{
+	puts("Checkpoint F\n");
+	return 0;
+}
+static int checkpoint_g(void)
+{
+	puts("Checkpoint G\n");
+	return 0;
+}
+static int checkpoint_h(void)
+{
+	puts("Checkpoint H\n");
+	return 0;
+}
+static int checkpoint_i(void)
+{
+	puts("Checkpoint I\n");
+	return 0;
+}
+static int checkpoint_j(void)
+{
+	puts("Checkpoint J\n");
+	return 0;
+}
+static int checkpoint_k(void)
+{
+	puts("Checkpoint K\n");
+	return 0;
+}
+static int checkpoint_l(void)
+{
+	puts("Checkpoint L\n");
+	return 0;
+}
+static int checkpoint_m(void)
+{
+	puts("Checkpoint M\n");
+	return 0;
+}
+static int checkpoint_n(void)
+{
+	puts("Checkpoint N\n");
+	return 0;
+}
+static int checkpoint_o(void)
+{
+	puts("Checkpoint O\n");
+	return 0;
+}
+static int checkpoint_p(void)
+{
+	puts("Checkpoint P\n");
+	return 0;
+}
+static int checkpoint_q(void)
+{
+	puts("Checkpoint Q\n");
+	return 0;
+}
+static int checkpoint_r(void)
+{
+	puts("Checkpoint R\n");
+	return 0;
+}
+static int checkpoint_s(void)
+{
+	puts("Checkpoint S\n");
+	return 0;
+}
+static int checkpoint_t(void)
+{
+	puts("Checkpoint T\n");
+	return 0;
+}
+static int checkpoint_u(void)
+{
+	puts("Checkpoint U\n");
+	return 0;
+}
+static int checkpoint_v(void)
+{
+	puts("Checkpoint V\n");
+	return 0;
+}
+static int checkpoint_w(void)
+{
+	puts("Checkpoint W\n");
+	return 0;
+}
+static int checkpoint_x(void)
+{
+	puts("Checkpoint X\n");
+	return 0;
+}
+static int checkpoint_y(void)
+{
+	puts("Checkpoint Y\n");
+	return 0;
+}
+static int checkpoint_z(void)
+{
+	puts("Checkpoint Z\n");
+	return 0;
+}
+
 /*
  * Over time we hope to remove these functions with code fragments and
  * stub functions, and instead call the relevant function directly.
@@ -780,48 +911,74 @@ static init_fnc_t init_sequence_r[] = {
 	initr_api,
 #endif
 	console_init_r,		/* fully init console as a device */
+	checkpoint_a,
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
+	checkpoint_b,
 	console_announce_r,
+	checkpoint_c,
 	show_board_info,
 #endif
+	checkpoint_d,
 #ifdef CONFIG_ARCH_MISC_INIT
+	checkpoint_e,
 	arch_misc_init,		/* miscellaneous arch-dependent init */
 #endif
+	checkpoint_f,
 #ifdef CONFIG_MISC_INIT_R
+	checkpoint_g,
 	misc_init_r,		/* miscellaneous platform-dependent init */
 #endif
+	checkpoint_h,
 	INIT_FUNC_WATCHDOG_RESET
+	checkpoint_i,
 #ifdef CONFIG_CMD_KGDB
+	checkpoint_j,
 	initr_kgdb,
 #endif
+	checkpoint_k,
 	interrupt_init,
+	checkpoint_l,
 #ifdef CONFIG_ARM
+	checkpoint_m,
 	initr_enable_interrupts,
 #endif
+	checkpoint_n,
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_LED_STATUS)
+	checkpoint_o,
 	initr_status_led,
 #endif
+	checkpoint_p,
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #ifdef CONFIG_CMD_NET
+	checkpoint_q,
 	initr_ethaddr,
 #endif
+	checkpoint_r,
 #ifdef CONFIG_BOARD_LATE_INIT
+	checkpoint_s,
 	board_late_init,
 #endif
+	checkpoint_t,
 #if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
+	checkpoint_u,
 	INIT_FUNC_WATCHDOG_RESET
 	initr_scsi,
 #endif
+	checkpoint_v,
 #ifdef CONFIG_BITBANGMII
 	initr_bbmii,
 #endif
+	checkpoint_w,
 #ifdef CONFIG_CMD_NET
+	checkpoint_x,
 	INIT_FUNC_WATCHDOG_RESET
+	checkpoint_y,
 	initr_net,
 #endif
+	checkpoint_z,
 #ifdef CONFIG_POST
 	initr_post,
 #endif
