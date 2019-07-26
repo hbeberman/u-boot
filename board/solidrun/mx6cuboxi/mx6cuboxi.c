@@ -618,9 +618,10 @@ int board_late_init(void)
 
 	if (is_rev_15_som())
 		env_set("som_rev", "V15");
-
+#if 0
 	if (has_emmc())
 		env_set("has_emmc", "yes");
+#endif
 
 #endif
 
