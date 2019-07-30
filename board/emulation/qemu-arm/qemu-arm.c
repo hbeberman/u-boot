@@ -98,4 +98,10 @@ u32 spl_boot_device(void)
 {
 	return 0;
 }
+
+void spl_board_init(void)
+{
+	preloader_console_init();
+}
+
 #endif
